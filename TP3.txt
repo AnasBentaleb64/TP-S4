@@ -1,0 +1,254 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct noeud{
+    int val;
+    struct noeud *suiv;
+    struct noeud *prec;
+}noeud;
+
+noeud *creenoeud(int valeur){
+    noeud *nv=(noeud*)malloc(sizeof(noeud));
+    if(nv==NULL)
+    {
+        printf("Erreur d'allocation");
+        exit(1);
+    }
+    nv->val=valeur;
+    nv->suiv=NULL;
+    nv->prec=NULL;
+    return nv;
+}
+
+void afficherD(noeud *debut){
+    noeud *ptr=debut;
+    printf("\nAffichage normale");
+    while(ptr!=NULL)
+    {
+        printf("%d\t",ptr->val);
+        ptr=ptr->suiv;
+    }
+}
+
+void afficherF(noeud *debut)
+{
+    noeud *ptr=debut;
+    printf("\nAffichage inverse");
+    while(ptr->suiv!=NULL)
+    {
+        ptr=ptr->suiv;
+    }
+    while(ptr!=NULL){
+        printf("%d\t",ptr->val);
+        ptr=ptr->prec;
+    }
+}
+
+noeud *ajouterD(noeud *debut, int val){
+    noeud *nv=creenoeud(val);
+    if(debut==NULL){
+        debut=nv;
+    }
+    else{
+        nv->suiv=debut;
+        debut->prec=nv;
+        debut=nv;
+    }
+    return debut;
+}
+
+noeud *ajouterF(noeud *debut, int val){
+    noeud *ptr=debut;
+    if(debut==NULL){
+        printf("La liste est vide");
+        return debut;
+    }
+    noeud *nv=creenoeud(val);
+    while(ptr->suiv!=NULL){
+        ptr=ptr->suiv;
+    }
+    ptr->suiv=nv;
+    nv->prec=ptr;
+    return debut;
+}
+
+int taille(noeud *debut)
+{
+    noeud *ptr=debut;
+    int t=0;
+    if(debut==NULL)
+        return 0;
+    while(ptr!=NULL)
+    {
+        t++;
+        ptr=ptr->suiv;
+    }
+    return t;
+
+}
+
+noeud *insertion (noeud *debut,int pos, int val)
+{
+    if(debut==NULL)
+    {
+        printf("La liste est vide");
+        return debut;
+    }
+    noeud *ptr=debut;
+    noeud*temp;
+    noeud *nv=creenoeud(val);
+    int t=taille(debut);
+    if(pos>0&&pos<t+1){
+        for(int i=1;i<pos;i++)
+        {
+            temp=ptr;
+            ptr=ptr->suiv;
+        }
+        temp->suiv=nv;
+        nv->prec=temp;
+        nv->suiv=ptr;
+        ptr->prec=nv;
+
+    }
+    else{
+        return debut;
+    }
+    return debut;
+}
+
+noeud *rechercher(noeud *debut, int valeur)
+{
+    noeud *ptr=debut;
+    if(debut==NULL){
+        printf("La liste est vide");
+        return debut;
+    }
+    while(ptr->val!=valeur&&ptr!=NULL){
+        ptr=ptr->suiv;
+    }
+    if(ptr->val==valeur){
+        return ptr;
+    }
+    else{
+        return NULL;
+    }
+
+}
+
+noeud *supprimerD(noeud *debut)
+{
+    noeud *ptr=debut;
+    if (debut==NULL){
+        return debut;
+    }
+    else{
+        debut=debut->suiv;
+        free(ptr);
+        ptr=NULL;
+    }
+     return debut;
+}
+
+noeud *supprimerF(noeud *debut){
+    if(debut==NULL){
+        return debut;
+    }
+    noeud *temp;
+    noeud *ptr=debut;
+    while(ptr->suiv!=NULL){
+            temp=ptr;
+        ptr=ptr->suiv;
+    }
+    temp->suiv=NULL;
+    free(ptr);
+    ptr=NULL;
+    return debut;
+
+}
+
+noeud  *supprimerP(noeud *debut, int pos)
+{
+    noeud *ptr=debut,*temp;
+    if (debut==NULL){
+        return debut;
+    }
+    int t=taille(debut);
+    if(pos>0&&pos<t+1){
+        if(pos==1){
+            debut=debut->suiv;
+            free(ptr);
+            ptr=NULL;
+            return debut;
+        }
+        for(int i=1;i<=pos;i++){
+            temp=ptr;
+            ptr=ptr->suiv;
+        }
+        if(ptr->suiv=NULL){
+            free(ptr);
+            ptr=NULL;
+            return debut;
+        }
+        temp->suiv=ptr->suiv;
+        ptr->suiv->prec=temp;
+        free(ptr);
+        ptr=NULL;
+    }
+    return debut;
+}
+
+noeud *trier(noeud *debut)
+{
+    int t = taille(debut);
+    noeud *ptr, *ptr2;
+    int temp;
+
+    for(int i = 0; i < t - 1; i++) {
+        ptr = debut;
+        ptr2 = ptr->suiv;
+
+        for(int j = 0; j < t - i - 1; j++) {
+            if(ptr->val > ptr2->val) {
+                temp = ptr->val;
+                ptr->val = ptr2->val;
+                ptr2->val = temp;
+            }
+            ptr = ptr->suiv;
+            ptr2 = ptr->suiv;
+        }
+    }
+
+    return debut;
+}
+
+
+
+
+int main()
+{
+    noeud *debut=NULL;
+    debut=ajouterD(debut,20);
+    afficherD(debut);
+    debut=ajouterD(debut,10);
+    afficherD(debut);
+    debut=ajouterF(debut,30);
+    afficherD(debut);
+    debut=ajouterF(debut,50);
+    afficherD(debut);
+    debut=insertion(debut,4,600);
+    afficherF(debut);
+    noeud *recherche=rechercher(debut,50);
+    if(recherche==NULL){
+        printf("Element non trouver");
+    }
+    else {
+        printf("Element trouve : %d",recherche->val);
+    }
+    debut=supprimerD(debut);
+    afficherD(debut);
+    debut=supprimerF(debut);
+    afficherD(debut);
+    debut=trier(debut);
+    afficherD(debut);
+    return 0;
+}
